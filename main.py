@@ -1,9 +1,9 @@
-from typing import Annotated
-
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
-from models import Cliente, create_db_and_tables, engine
+from models import Cliente
+from db import engine, create_db_and_tables
 from schemas import ClienteCrear, ClienteLeer
+from validations import validar_cliente
 
 app = FastAPI()
 
@@ -42,7 +42,7 @@ async def get_clients(session=Depends(get_session)):
 
 
 # Ruta para obtener un cliente por su DNI
-@app.get("/cliente/{cliente_dni}", response_model=ClienteLeer)
+@app.get("/clientes/{cliente_dni}", response_model=ClienteLeer)
 def read_cliente(cliente_dni: str, session: Session = Depends(get_session)):
     cliente = buscar_cliente_por_dni(session, cliente_dni)
     if not cliente:
@@ -51,43 +51,39 @@ def read_cliente(cliente_dni: str, session: Session = Depends(get_session)):
 
 
 # Ruta para crear un nuevo cliente
-@app.post("/cliente/", response_model=ClienteLeer)
+@app.post("/clientes/", response_model=ClienteLeer)
 async def create_client(cliente: ClienteCrear, session=Depends(get_session)):
+    validar_cliente(session, cliente)
+    
     db_cliente = Cliente(**cliente.model_dump())
+    
     session.add(db_cliente)
     session.commit()
     session.refresh(db_cliente)
     return db_cliente
 
+
 # Ruta para actualizar un cliente
-@app.put("/cliente/{cliente_dni}", response_model=ClienteLeer)
+@app.put("/clientes/{cliente_dni}", response_model=ClienteLeer)
 def update_cliente(cliente_dni: str, cliente: ClienteCrear, session: Session = Depends(get_session)):
     db_client = buscar_cliente_por_dni(session, cliente_dni)
     if not db_client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
-    # update_data = cliente.dict(exclude_unset=True)
+    
+    validar_cliente(session, cliente)
+
     update_data = cliente.model_dump()
     for key, value in update_data.items():
         setattr(db_client, key, value)
+
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
     return db_client
 
 
-# Ruta para eliminar un cliente por su id en BBDD
-@app.delete("/clientes/{cliente_id}")
-def delete_cliente(cliente_id: int, session: Session = Depends(get_session)):
-    cliente = session.get(Cliente, cliente_id)
-    if not cliente:
-        raise HTTPException(status_code=404, detail="Cliente no encontrado")
-    session.delete(cliente)
-    session.commit()
-    return {"message": "Cliente eliminado correctamente"}
-
-
 # Ruta para eliminar un cliente por su DNI
-@app.delete("/cliente/{cliente_dni}")
+@app.delete("/clientes/{cliente_dni}")
 def delete_cliente(cliente_dni: str, session: Session = Depends(get_session)):
     cliente = buscar_cliente_por_dni(session, cliente_dni)
     if not cliente:
