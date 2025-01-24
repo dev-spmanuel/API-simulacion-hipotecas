@@ -1,0 +1,203 @@
+{
+	"info": {
+		"_postman_id": "7f4f176b-ea41-4860-8cb0-4630013e3cde",
+		"name": "API de simulación de hipotecas",
+		"description": "API que permite la realización de simulaciones de hipotecas para diferentes clientes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23576262"
+	},
+	"item": [
+		{
+			"name": "Crear Cliente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse the response body",
+							"let responseBody = pm.response.json();",
+							"",
+							"pm.collectionVariables.set(\"client_dni\", responseBody.dni)",
+							"",
+							"// Set the updated response body",
+							"pm.response.json(responseBody);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombre\": \"Fernando Pérez García\",\n    \"dni\": \"50716869Y\",\n    \"email\": \"hola@gmail.com\",\n    \"capital_solicitado\": \"80000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/clientes",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes"
+					]
+				},
+				"description": "### POST /clientes\n\nEste endpoint permite crear un nuevo cliente con los datos necesarios.\n\n### Request Body\n\n- `nombre` (string, required): El nombre del cliente.\n    \n- `dni` (string, required): El DNI (Documento Nacional de Identidad) del cliente.\n    \n- `email` (string, required): La dirección email del cliente.\n    \n- `capital_solicitado` (string, required): La cantidad de capital solicitado por el cliente.\n    \n\n### Response\n\nLa respuesta se dará en formato JSON representando la estructura del nuevo cliente creado.\n\nAl realizar esta petición, se guardará una variable llamada \"client_dni\" que contendrá el DNI del nuevo cliente creado, esta nueva variable se podrá usar para otros endpoints para facilitar su uso, tales como consultar un cliente por su DNI, solicitar simulación...\n\nEjemplo de esquema JSON:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"number\"\n    },\n    \"nombre\": {\n      \"type\": \"string\"\n    },\n    \"dni\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"capital_solicitado\": {\n      \"type\": \"number\"\n    }\n    \"simulaciones\": {\n      \"type\": \"array\"\n      \"items\": {\n        \"type\": \"object\"\n        \"properties\": {\n          \"id\": {\n            \"type\": \"number\"\n          },          \n          \"cuota_mensual\": {\n            \"type\": \"number\"\n          },\n          \"importe_total\": {\n            \"type\": \"number\"\n          },\n          \"plazo\": {\n            \"type\": \"number\"\n          },\n          \"interes\": {\n            \"type\": \"number\"\n          },\n          \"fecha_simulacion\": {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Clientes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/clientes",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes"
+					]
+				},
+				"description": "### GET /clientes\n\nEste endpoint devuelve una lista con todos los clientes registrados.\n\nLa respuesta se dará en formato JSON y tendrá el siguiente esquema:\n\n``` json\n{\n    \"type\": \"array\",\n    \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"id\": {\n                \"type\": \"number\"\n            },\n            \"nombre\": {\n                \"type\": \"string\"\n            },\n            \"dni\": {\n                \"type\": \"string\"\n            },\n            \"email\": {\n                \"type\": \"string\"\n            },\n            \"capital_solicitado\": {\n                \"type\": \"number\"\n            },\n            \"simulaciones\": {\n                \"type\": \"array\",\n                \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"id\": {\n                            \"type\": \"number\"\n                        },\n                        \"cuota_mensual\": {\n                            \"type\": \"number\"\n                        },\n                        \"importe_total\": {\n                            \"type\": \"number\"\n                        },\n                        \"plazo\": {\n                            \"type\": \"number\"\n                        },\n                        \"interes\": {\n                            \"type\": \"number\"\n                        },\n                        \"fecha_simulacion\": {\n                            \"type\": \"string\",\n                            \"format\": \"date-time\"\n                        }\n                    }\n                }\n            }\n        }\n    }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Cliente",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/clientes/{{client_dni}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes",
+						"{{client_dni}}"
+					]
+				},
+				"description": "### GET /clientes/{dni}\n\nEste endpoint devuelve la información de un cliente específico dado su DNI.\n\n#### Request\n\nNo se requiere para este endpoint.\n\n#### Response\n\nLa respuesta se dará en formato JSON y tendrá el siguiente esquema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"number\"\n    },\n    \"nombre\": {\n      \"type\": \"string\"\n    },\n    \"dni\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"capital_solicitado\": {\n      \"type\": \"number\"\n    },\n    \"simulaciones\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"number\"\n          },\n          \"cuota_mensual\": {\n            \"type\": \"number\"\n          },\n          \"importe_total\": {\n            \"type\": \"number\"\n          },\n          \"plazo\": {\n            \"type\": \"number\"\n          },\n          \"interes\": {\n            \"type\": \"number\"\n          },\n          \"fecha_simulacion\": {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Cliente",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombre\": \"Fernando Pérez García\",\n    \"dni\": \"50716869Y\",\n    \"email\": \"hola.modificado@gmail.com\",\n    \"capital_solicitado\": \"80000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/clientes/{{client_dni}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes",
+						"{{client_dni}}"
+					]
+				},
+				"description": "### PUT /clientes/{dni}\n\nEste endpoint permite actualizar la información de un cliente específico dado su DNI.\n\n#### Request Body\n\n- `nombre` (string, required): El nombre del cliente.\n    \n- `dni` (string, required): El DNI (Documento Nacional de Identidad) del cliente.\n    \n- `email` (string, required): La dirección email del cliente.\n    \n- `capital_solicitado` (string, required): La cantidad de capital solicitado por el cliente.\n    \n\n#### Response Body\n\nLa respuesta contendrá la información actualizada del cliente en formato JSON.\n\nEjemplo de esquema JSON:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"number\"\n    },\n    \"nombre\": {\n      \"type\": \"string\"\n    },\n    \"dni\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"capital_solicitado\": {\n      \"type\": \"number\"\n    }\n    \"simulaciones\": {\n      \"type\": \"array\"\n      \"items\": {\n        \"type\": \"object\"\n        \"properties\": {\n          \"id\": {\n            \"type\": \"number\"\n          },          \n          \"cuota_mensual\": {\n            \"type\": \"number\"\n          },\n          \"importe_total\": {\n            \"type\": \"number\"\n          },\n          \"plazo\": {\n            \"type\": \"number\"\n          },\n          \"interes\": {\n            \"type\": \"number\"\n          },\n          \"fecha_simulacion\": {\n            \"type\": \"string\",\n            \"format\": \"date-time\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Simular hipoteca",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"interes\": 2.5,\n    \"plazo\": 30\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/clientes/{{client_dni}}/simulacion",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes",
+						"{{client_dni}}",
+						"simulacion"
+					]
+				},
+				"description": "### POST /clientes/{dni}/simulacion\n\nEste endpoint permite realizar una simulación de hipoteca para un cliente dado su DNI.\n\n### Request Body\n\n- `interes` (number): El interés anual de la hipoteca.\n    \n- `plazo` (number): El plazo en meses para el pago de la hipoteca.\n    \n\n### Response\n\nLa respuesta devolverá la cuota mensual a pagar y el importe total a devolver, junto con el resto de datos de la simulación.\n\nSe devolverá en formato JSON y tendrá el siguiente esquema:\n\n``` json\n{\n  \"type\": \"object\"\n  \"properties\":  {\n    \"id\": {\n      \"type\": \"number\"\n    },\n    \"cliente_id\": {\n      \"type\": \"number\"\n    },\n    \"cuota_mensual\": {\n      \"type\": \"number\"\n    },\n    \"importe_total\": {\n      \"type\": \"number\"\n    },\n    \"plazo\": {\n      \"type\": \"number\"\n    },\n    \"interes\": {\n      \"type\": \"number\"\n    },\n    \"fecha_simulacion\": {\n      \"type\": \"string\",\n      \"format\": \"date-time\"\n    }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Cliente",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/clientes/{{client_dni}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"clientes",
+						"{{client_dni}}"
+					]
+				},
+				"description": "### DELETE /clientes/{dni}\n\nEste endpoint permite eliminar un cliente específico dado su DNI.\n\n#### Request Body\n\nNo requerido para este endpoint.\n\n#### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n- { \"message\": \"Cliente eliminado correctamente\"}"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "client_dni",
+			"value": "50716869Y"
+		}
+	]
+}
