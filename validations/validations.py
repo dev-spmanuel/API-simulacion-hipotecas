@@ -1,7 +1,8 @@
-from schemas import ClienteCrear
 from fastapi import HTTPException
 from sqlmodel import select, and_
-from models import Cliente
+
+from db.models import Cliente
+from db.schemas import ClienteCrear
 
 
 def validar_dni(dni: str) -> bool:

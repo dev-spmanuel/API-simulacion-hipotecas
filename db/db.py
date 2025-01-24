@@ -1,5 +1,4 @@
-from sqlmodel import SQLModel, create_engine, select
-from models import Cliente
+from sqlmodel import SQLModel, create_engine, Session
 
 
 # Configurar la base de datos SQLite
@@ -15,7 +14,7 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
-# Función para buscar un cliente por su DNI
-def buscar_cliente_por_dni(session, cliente_dni):
-    statement = select(Cliente).where(Cliente.dni == cliente_dni)
-    return session.exec(statement).first()
+# Dependencia para la sesión de la base de datos
+def get_session():
+    with Session(engine) as session:
+        yield session

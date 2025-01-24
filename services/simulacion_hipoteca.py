@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlmodel import Session
-from models import SimulacionHipoteca
+
+from db.models import SimulacionHipoteca
 
 
 class CalculadorSimulacionHipoteca:
