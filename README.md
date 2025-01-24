@@ -29,7 +29,7 @@ Esta API permite gestionar clientes y realizar simulaciones de hipotecas con los
    ```bash
    fastapi run
 
-La API estará disponible en http://127.0.0.1:8000 por defecto.
+La API estará disponible en http://localhost:8000 por defecto.
 
 >[!NOTE]
 >  #### Puedes importar la colección de Postman con los endpoints de la API desde el archivo [SimulacionHipotecas.postman_collection.json](utils/SimulacionHipotecas.postman_collection.json), incluido en este repositorio.
