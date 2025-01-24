@@ -1,11 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
-from models import Cliente, SimulacionHipoteca
+from models import Cliente
 from db import engine, create_db_and_tables, buscar_cliente_por_dni
 from schemas import ClienteCrear, ClienteLeer, SimulacionHipotecaCrear, SimulacionHipotecaLeer
 from validations import validar_cliente
-from datetime import datetime
 from typing import Annotated
+from simulacion_hipoteca import CalculadorSimulacionHipoteca
 
 
 # Crear la base de datos y las tablas
@@ -80,45 +80,6 @@ def delete_client(cliente_dni: str, session: SessionDep):
     return {"message": "Cliente eliminado correctamente"}
 
 
-def calcular_hipoteca(capital, tae, plazo_años):
-    # Calcular el interés mensual
-    i = tae / 100 / 12
-    # Calcular el número total de meses
-    n = plazo_años * 12
-    # Calcular la cuota mensual
-    cuota = capital * i / (1 - (1 + i) ** -n)
-
-    # Calcular el importe total a devolver
-    importe_total = cuota * n
-
-    # Devolver la cuota y el importe total redondeados a 2 decimales
-    return round(cuota, 2), round(importe_total, 2)
-
-
-def crear_simulacion(session: Session, cliente, plazo: int, interes: float):
-
-    # Calcular los valores de la simulación
-    cuota_mensual, importe_total = calcular_hipoteca(cliente.capital_solicitado, interes, plazo)
-
-    # Crear una nueva simulación
-    simulacion = SimulacionHipoteca(
-        cliente_id=cliente.id,
-        cuota_mensual=cuota_mensual,
-        importe_total=importe_total,
-        plazo=plazo,
-        interes=interes,
-        fecha_simulacion=datetime.now()
-    )
-
-    # return simulacion
-
-    # Guardar la simulación en la base de datos
-    session.add(simulacion)
-    session.commit()
-    # session.refresh(simulacion)
-    return simulacion
-
-
 # Ruta para solicitar una simulación de hipoteca para un cliente
 @app.post("/clientes/{cliente_dni}/simulacion", response_model=SimulacionHipotecaLeer)
 async def simulate_mortgage(cliente_dni: str, datos: SimulacionHipotecaCrear, session: SessionDep):
@@ -129,9 +90,7 @@ async def simulate_mortgage(cliente_dni: str, datos: SimulacionHipotecaCrear, se
     if datos.interes is None or datos.plazo is None:
         raise HTTPException(status_code=400, detail="Interes anual y plazo en años son requeridos")
 
-    simulacion = crear_simulacion(session, cliente, datos.plazo, datos.interes)
-
-    return simulacion
-
-
+    calculador_hipoteca = CalculadorSimulacionHipoteca(cliente.capital_solicitado, datos.interes, datos.plazo)
+    simulacion = calculador_hipoteca.crear_simulacion(session, cliente.id)
     
+    return simulacion

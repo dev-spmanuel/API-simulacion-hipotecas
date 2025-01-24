@@ -3,23 +3,6 @@ from pydantic import EmailStr
 from typing import Optional, List
 from datetime import datetime
 
-# Esquema para crear un cliente (sin ID)
-class ClienteCrear(SQLModel):
-    nombre: str
-    dni: str
-    email: EmailStr
-    capital_solicitado: float
-
-# Esquema para devolver un cliente
-class ClienteLeer(SQLModel):
-    id: int
-    nombre: str
-    dni: str
-    email: EmailStr
-    capital_solicitado: float
-
-    simulaciones: Optional[List["SimulacionHipotecaClienteLeer"]] = None
-
 
 # Esquema para crear una simulación de hipoteca
 class SimulacionHipotecaCrear(SQLModel):
@@ -46,3 +29,25 @@ class SimulacionHipotecaClienteLeer(SQLModel):
     plazo: int
     interes: float
     fecha_simulacion: Optional[datetime] = None
+
+
+# Esquema para crear un cliente (sin ID)
+class ClienteCrear(SQLModel):
+    nombre: str
+    dni: str
+    email: EmailStr
+    capital_solicitado: float
+
+
+# Esquema para devolver un cliente
+class ClienteLeer(SQLModel):
+    id: int
+    nombre: str
+    dni: str
+    email: EmailStr
+    capital_solicitado: float
+
+    simulaciones: Optional[List[SimulacionHipotecaClienteLeer]] = None
+
+    class Config:
+        orm_mode = True
