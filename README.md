@@ -18,7 +18,7 @@ Esta API permite gestionar clientes y realizar simulaciones de hipotecas con los
 
 2. Crea y activa un entorno virtual:
    ```bash
-   python -m venv .venv
+   python3 -m venv .venv
    source .venv/bin/activate
 
 3. Instala las dependencias:
