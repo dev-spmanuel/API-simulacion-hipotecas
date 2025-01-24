@@ -1,6 +1,6 @@
 from schemas import ClienteCrear
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import select, and_
 from models import Cliente
 
 
@@ -21,7 +21,7 @@ def validar_dni(dni: str) -> bool:
     
     # Separar los números y la letra
     numeros = int(dni[:-1])
-    letra = dni[-1].upper()  # Convertir la letra a mayúsculas
+    letra = dni[-1].upper()
     
     # Calcular la letra correspondiente
     letra_calculada = letras_dni[numeros % 23]
@@ -30,18 +30,27 @@ def validar_dni(dni: str) -> bool:
     return letra == letra_calculada
 
 
-def validar_cliente(session, cliente: ClienteCrear):
-    # Verificar si el email ya está en uso
-    email_exists = select(Cliente).where(Cliente.email == cliente.email)
+def validar_cliente(session, cliente: ClienteCrear, cliente_id: int = None):
+    """
+    Valida los datos de un cliente antes de crearlo o actualizarlo.
+    Args:
+        session (Session): Sesión de la base de datos.
+        cliente (ClienteCrear): Datos del cliente a validar.
+        cliente_id (int, optional): ID del cliente en el caso que se quiera actualizar. Por defecto None.
+    Raises:
+        HTTPException: Si el email o el DNI ya están en uso, o si el DNI no es válido.
+    """
+    # Verificar si el email ya está en uso por otro cliente
+    email_exists = select(Cliente).where(and_(Cliente.id != cliente_id, Cliente.email == cliente.email))
     existing_email = session.exec(email_exists).first()
     if existing_email:
         raise HTTPException(status_code=400, detail="El email ya está en uso")
 
-    # Verificar si el DNI ya está en uso
-    dni_exists = select(Cliente).where(Cliente.dni == cliente.dni)
+    # Verificar si el DNI ya está en uso por otro cliente
+    dni_exists = select(Cliente).where(and_(Cliente.id != cliente_id, Cliente.dni == cliente.dni))
     existing_dni = session.exec(dni_exists).first()
     if existing_dni:
         raise HTTPException(status_code=400, detail="El DNI ya está en uso")
-
+    
     if not validar_dni(cliente.dni):
         raise HTTPException(status_code=400, detail="DNI no válido")
