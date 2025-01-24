@@ -11,7 +11,7 @@ class Cliente(SQLModel, table=True):
     email: EmailStr = Field(unique=True, nullable=False)
     capital_solicitado: float = Field(default=0.0, nullable=False)
 
-    simulaciones: List["SimulacionHipoteca"] = Relationship(back_populates="cliente")
+    simulaciones: List["SimulacionHipoteca"] = Relationship(back_populates="cliente", cascade_delete=True)
 
 
 class SimulacionHipoteca(SQLModel, table=True):

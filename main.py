@@ -22,14 +22,14 @@ app = FastAPI()
 
 
 # Ruta para obtener todos los clientes
-@app.get("/clientes/", response_model=list[ClienteLeer], response_model_exclude_unset=True)
+@app.get("/clientes/", response_model=list[ClienteLeer])
 async def get_clients(session: SessionDep):
     clientes = session.exec(select(Cliente)).all()
     return clientes
 
 
 # Ruta para obtener un cliente por su DNI
-@app.get("/clientes/{cliente_dni}", response_model=ClienteLeer, response_model_exclude_unset=True)
+@app.get("/clientes/{cliente_dni}", response_model=ClienteLeer)
 def read_client(cliente_dni: str, session: SessionDep):
     cliente = buscar_cliente_por_dni(session, cliente_dni)
     if not cliente:
@@ -59,9 +59,8 @@ def update_client(cliente_dni: str, cliente: ClienteCrear, session: SessionDep):
     
     validar_cliente(session, cliente, db_client.id)
 
-    update_data = cliente.model_dump()
-    for key, value in update_data.items():
-        setattr(db_client, key, value)
+    client_data = cliente.model_dump()
+    db_client.sqlmodel_update(client_data)
 
     session.add(db_client)
     session.commit()
