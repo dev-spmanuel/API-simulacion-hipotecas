@@ -32,4 +32,4 @@ Esta API permite gestionar clientes y realizar simulaciones de hipotecas con los
 La API estará disponible en http://localhost:8000 por defecto.
 
 >[!NOTE]
->  #### Puedes importar la colección de Postman con los endpoints de la API desde el archivo [SimulacionHipotecas.postman_collection.json](docs/SimulacionHipotecas.postman_collection.json), incluido en este repositorio.
+>  #### Puedes importar la colección de [Postman](https://www.postman.com/) con los endpoints de la API desde el archivo [SimulacionHipotecas.postman_collection.json](docs/SimulacionHipotecas.postman_collection.json), incluido en este repositorio.
